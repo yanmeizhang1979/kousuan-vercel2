@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>小学口算题生成器</title>
+    <style>
+        body { font-family: "Microsoft YaHei", sans-serif; padding: 15px; background:#f9f9f9; }
+        input, select, button { padding: 10px; margin: 6px 0; width: 100%; box-sizing: border-box; border:1px solid #ccc; border-radius:6px; }
+        .question { background:white; padding:10px; margin:6px 0; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        @media (min-width: 600px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+        button { background:#4CAF50; color:white; font-weight:bold; }
+        h2 { text-align:center; color:#2c3e50; }
+        #loading { display:none; color:#e74c3c; }
+    </style>
+</head>
+<body>
+    <h2>📱 小学口算题生成器</h2>
+    <form id="form">
+        范围：<input type="number" name="start" value="1" min="0"> 到 
+        <input type="number" name="end" value="10" min="1"><br>
+        题量：<input type="number" name="count" value="20" min="1" max="100"><br>
+        题型：<select name="op">
+            <option value="add">加法</option>
+            <option value="sub">减法</option>
+            <option value="mul">乘法</option>
+            <option value="div">除法</option>
+        </select><br>
+        <button type="submit">🔥 生成题目</button>
+        <div id="loading">正在生成...</div>
+    </form>
+    <hr>
+    <div class="grid" id="output"></div>
+
+    <script>
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const params = new URLSearchParams();
+            for (let [k, v] of formData) params.append(k, v);
+
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const res = await fetch('/api/generate?' + params.toString());
+                const questions = await res.json();
+                const output = document.getElementById('output');
+                output.innerHTML = questions.map(q => `<div class="question">${q}</div>`).join('');
+            } catch (err) {
+                alert('生成失败，请重试');
+            }
+            document.getElementById('loading').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
